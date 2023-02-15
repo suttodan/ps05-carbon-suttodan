@@ -1,0 +1,62 @@
+---
+title: "Exploring Carbon Emissions"
+author: "Dan Sutton"
+output: html_document
+date: "2023-02-15"
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse) ## install.packages("tidyverse")
+demog <- read_delim("data/gapminder.csv.bz2")
+```
+## Loading Data
+
+The gapminder data set has `r nrow(demog)` rows and `r ncol(demog)` columns.
+
+I selected just four of the `r ncol(demog)` columns for the table below, as the
+table ends up being far too wide otherwise.
+```{r}
+demog %>% 
+  select(iso3, name, iso2, region) %>% 
+  sample_n(5) %>% 
+  knitr::kable()
+```
+A further examination of the data shows that it's mostly readable, but there are
+missing values in some places. It will be important to keep this in mind while
+processing the data later in this assignment.
+
+
+# 2: Descriptive Statistics (15pt)
+# 3 pt: How many countries are there in the dataset?
+# If you did this correctly, you saw that there are more names than iso-2 codes, and even more iso-3 codes. What's going on? Can you find it out?
+# 5 pt: find how many names there are per iso-2 code. any iso-2 codes correspond to more than one name? what countries are those?
+# 5 pt: do same for iso-3
+# hint: two of these entities are CHANISL and NLD CURACAO
+# 2 pt: what is the min/max year in data?
+
+# 3 CO2 emissions (30pt)
+# 2 pt: how many missing co2 emissions are there for each year? analyze missing CO2 and co2_PC. which years have most missing data?
+# 5 pt: make a plot of total co2 emissions over time for US, China, and India. add a few more countries of your chioce. explain what is seen
+# 5 pt: analyze co2 per capita, similar plot, same countries. what does this figure suggest?
+# 6 pt: compute average co2 emissions per capita across continents (region == continent for this purpose)
+# note: just compute averages over countries, ignore the fact that countries are of different size
+# hint: americas 2016 should be 4.80
+# 7 pt: make a barplot where you show the previous results - average co2 emissions per capita across continents in 1960 and 2016
+# hint: should look something like the graph in the pdf
+# which countries are the three largest and three smallest co2 emitters (per capita) in 2019 for each continent?
+
+# 4 GDP per capita (50 pt)
+# 8 pt: make scatterplot of GDP per capita vs life expectancy by country, using data for 1960. make point size dependent on country size, color according to continent; feel free to adjust plot to make it better. then comment on what you see
+# 4 pt: same plot, but for 2019 data only
+# 6 pt: compare these two plots, comment. how has the world developed through the last 60 years?
+# 6 pt: compute avg life expectancy for each continent in 1960 and 2019. do results fit with what you see on the figures?
+# 8 pt: computer average LE growth from 1960-2019 across continents. show results in order of growth; explain what you see
+# hint: these data are not the simplest way to compute growth. but you may want to check out the lag() function. and do not forget to gropu data by continent when using lag(), otherwise results will be messed up!
+# 6 pt: show histogram of gdp per capita for years of 1960 and 2019. try to put both histograms on same graph, see how well you can do it!
+# 6 pt: what was the ranking of US in terms of life expectancy in 1960 and in 2019? (when counting from top)
+# hint: rank()
+# hint: 17 for 1960
+# 6 pt: if you did this correctly, then you see that US ranking has been falling quite a bit. we also have more countries in 2019; what about the relative rank divided by the corresponding number of countries that have LE data in the corresponding year?
+# hint: 0.0904 for 1960
+
+#finally: how many hours did you spend on this PS?
