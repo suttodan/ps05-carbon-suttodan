@@ -9,22 +9,59 @@ knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse) ## install.packages("tidyverse")
 demog <- read_delim("data/gapminder.csv.bz2")
 ```
+
 ## Loading Data
 
 The gapminder data set has `r nrow(demog)` rows and `r ncol(demog)` columns.
 
 I selected just four of the `r ncol(demog)` columns for the table below, as the
 table ends up being far too wide otherwise.
+
 ```{r}
 demog %>% 
   select(iso3, name, iso2, region) %>% 
   sample_n(5) %>% 
   knitr::kable()
 ```
-A further examination of the data shows that it's mostly readable, but there are
+
+A further examination of the data shows that it's readable, but there are
 missing values in some places. It will be important to keep this in mind while
 processing the data later in this assignment.
 
+## Descriptive Statistics
+
+```{r}
+countries <- demog %>%
+  select(iso3, iso2, name) %>%
+  summarize(iso3Total = n_distinct(iso3),
+            iso2Total = n_distinct(iso2),
+            countryTotal = n_distinct(name))
+
+countries %>% 
+  knitr::kable()
+```
+There are `r countries$countryTotal` countries in the dataset. It appears there are `r countries$iso2Total` iso-2 codes, and `r countries$iso3Total` iso-3 codes. However, when filtering for only combinations that include "NA" for an iso-2 codes, we see that there are two possibilities for name: an accompanying "NA" value, or Namibia. 
+
+```{r}
+countriesIso2 <- demog %>% 
+  select(iso2, name) %>% 
+  group_by(iso2, name) %>%
+  summarize(n_distinct(name))
+
+countriesIso2 %>% 
+  select(iso2, name) %>% 
+  filter(is.na(iso2)) %>% 
+  head(2) %>% 
+  knitr::kable()
+```
+
+```{r}
+countriesIso3 <- demog %>% 
+  select(iso3, name) %>% 
+  group_by(iso3, name) %>%
+  summarize(n_distinct(name)) %>% 
+  knitr::kable()
+```
 
 # 2: Descriptive Statistics (15pt)
 # 3 pt: How many countries are there in the dataset?
