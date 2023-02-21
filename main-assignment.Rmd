@@ -33,44 +33,82 @@ processing the data later in this assignment.
 ```{r}
 countries <- demog %>%
   select(iso3, iso2, name) %>%
-  summarize(iso3Total = n_distinct(iso3),
-            iso2Total = n_distinct(iso2),
-            countryTotal = n_distinct(name))
+  summarize(iso3Codes = n_distinct(iso3),
+            iso2Codes = n_distinct(iso2),
+            countryNames = n_distinct(name))
 
 countries %>% 
   knitr::kable()
 ```
-There are `r countries$countryTotal` countries in the dataset. It appears there are `r countries$iso2Total` iso-2 codes, and `r countries$iso3Total` iso-3 codes. However, when filtering for only combinations that include "NA" for an iso-2 codes, we see that there are two possibilities for name: an accompanying "NA" value, or Namibia. 
+
+There are `r countries$countryNames` countries in the dataset. It appears there are `r countries$iso2Codes` iso-2 codes, and `r countries$iso3Codes` iso-3 codes.
+
+When filtering for only combinations that include "NA" for an iso-2 codes, we see that there are two possibilities for name: an accompanying "NA" value, or Namibia. This seems to indicate that the way the data is read and processed does not currently differentiate between the letters "NA" and a missing value.
 
 ```{r}
-countriesIso2 <- demog %>% 
+iso2PerName <- demog %>% 
   select(iso2, name) %>% 
-  group_by(iso2, name) %>%
-  summarize(n_distinct(name))
+  group_by(name) %>% 
+  summarize(iso2PerCountry = n_distinct(iso2)) %>% 
+  filter(iso2PerCountry != 1)
 
-countriesIso2 %>% 
+namePerIso2 <- demog %>% 
   select(iso2, name) %>% 
+  group_by(iso2)
+  
+namePerIso2 %>% 
+  summarize(countriesPerIso2 = n_distinct(name)) %>% 
+  filter(countriesPerIso2 != 1) %>% 
+  knitr::kable()
+
+namePerIso2 %>% 
   filter(is.na(iso2)) %>% 
-  head(2) %>% 
+  group_by(name) %>% 
+  summarize() %>% 
   knitr::kable()
 ```
+We can also calculate that there are `r nrow(iso2PerName)` countries with more than one iso-2 code attached.
+
+In the case of iso-3 codes, it seems that every country name is associated with a unique code; however, there are four different iso-3 codes that correspond with a missing country name, as shown in the table below.
 
 ```{r}
-countriesIso3 <- demog %>% 
+iso3Countries <- demog %>% 
   select(iso3, name) %>% 
-  group_by(iso3, name) %>%
-  summarize(n_distinct(name)) %>% 
+  group_by(name)
+  
+iso3Countries %>% 
+  summarize(iso3PerCountry = n_distinct(iso3)) %>% 
+  filter(iso3PerCountry != 1) %>% 
+  knitr::kable()
+
+iso3Countries %>% 
+  filter(is.na(name)) %>% 
+  group_by(iso3) %>% 
+  summarize() %>% 
+  knitr::kable()
+```
+The earliest year in the data is `r min(demog$time, na.rm=TRUE)`, and the most recent year is `r max(demog$time, na.rm=TRUE)`.
+
+## CO2 emissions
+
+The following table shows how many missing values there are for CO2 and CO2 per capita for each year. The last year that has any data for CO2 or CO2 per capita is 2016; 2017-2019 contain values for some of the other columns, but have missing values for CO2 and CO2 per capita for every country in the database.
+```{r}
+demog %>% 
+  group_by(time) %>% 
+  summarize(missingEmissions = sum(is.na(co2)),
+            missingEmissionsPerCapita = sum(is.na(co2_PC))) %>% 
   knitr::kable()
 ```
 
-# 2: Descriptive Statistics (15pt)
-# 3 pt: How many countries are there in the dataset?
-# If you did this correctly, you saw that there are more names than iso-2 codes, and even more iso-3 codes. What's going on? Can you find it out?
-# 5 pt: find how many names there are per iso-2 code. any iso-2 codes correspond to more than one name? what countries are those?
-# 5 pt: do same for iso-3
-# hint: two of these entities are CHANISL and NLD CURACAO
-# 2 pt: what is the min/max year in data?
+The following plot shows the CO2 emissions over time for several countries.
 
+```{r}
+co2Emissions <- demog %>% 
+  
+  
+
+ggplot()
+```
 # 3 CO2 emissions (30pt)
 # 2 pt: how many missing co2 emissions are there for each year? analyze missing CO2 and co2_PC. which years have most missing data?
 # 5 pt: make a plot of total co2 emissions over time for US, China, and India. add a few more countries of your chioce. explain what is seen
